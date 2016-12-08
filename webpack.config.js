@@ -39,14 +39,11 @@ config = {
   cache: true,
   module: {
     loaders: [{
-      test: /\.js$/,
-      loader: 'babel',
-      cacheable: true,
-      query: {
-        cacheDirectory: true,
-        presets: ['es2015', 'stage-1']
-      }
-    }]
+        test: /\.js$/,
+        cacheable: true,
+        loader: 'babel',
+        exclude: /(node_modules|core-js)/
+      }]
   },
   resolveLoader: {
     root: path.resolve(__dirname, './')

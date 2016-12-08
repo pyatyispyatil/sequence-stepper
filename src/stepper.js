@@ -93,15 +93,13 @@ export class Stepper {
 
 export function sequence(steps, reject) {
   let [last, ...firsts] = steps.slice().reverse();
-
+  
   return (initialData) =>
     firsts.reduce((nextStep, step) =>
       (comingStep, data) =>
         step({
           next: (data) => nextStep(comingStep, data),
-          reject: (data) => reject(data)
+          reject
         }, data), last)(
-      {
-        reject: (data) => reject(data)
-      }, initialData);
+      {reject}, initialData);
 }
