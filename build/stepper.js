@@ -3,21 +3,12 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.sequence = exports.Stepper = undefined;
 
-var _toArray2 = require('babel-runtime/helpers/toArray');
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _toArray3 = _interopRequireDefault(_toArray2);
+function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
 
-var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
-
-var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-var _createClass2 = require('babel-runtime/helpers/createClass');
-
-var _createClass3 = _interopRequireDefault(_createClass2);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var StepDescriptor = function () {
   /**
@@ -27,7 +18,8 @@ var StepDescriptor = function () {
   function StepDescriptor(step, stepper) {
     var _this = this;
 
-    (0, _classCallCheck3.default)(this, StepDescriptor);
+    _classCallCheck(this, StepDescriptor);
+
     this.id = 0;
 
     this.id = StepDescriptor.ID_COUNTER;
@@ -40,7 +32,7 @@ var StepDescriptor = function () {
     };
   }
 
-  (0, _createClass3.default)(StepDescriptor, [{
+  _createClass(StepDescriptor, [{
     key: 'next',
 
 
@@ -66,6 +58,7 @@ var StepDescriptor = function () {
       this.stepper.reject(data);
     }
   }]);
+
   return StepDescriptor;
 }();
 
@@ -82,7 +75,9 @@ var Stepper = exports.Stepper = function () {
     var onReject = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
       return null;
     };
-    (0, _classCallCheck3.default)(this, Stepper);
+
+    _classCallCheck(this, Stepper);
+
     this.steps = [];
     this.currentStep = -1;
 
@@ -92,7 +87,7 @@ var Stepper = exports.Stepper = function () {
     this.reject = onReject;
   }
 
-  (0, _createClass3.default)(Stepper, [{
+  _createClass(Stepper, [{
     key: 'next',
 
 
@@ -213,12 +208,13 @@ var Stepper = exports.Stepper = function () {
       }), this.reject);
     }
   }]);
+
   return Stepper;
 }();
 
 function _sequence(steps, reject) {
   var _steps$slice$reverse = steps.slice().reverse(),
-      _steps$slice$reverse2 = (0, _toArray3.default)(_steps$slice$reverse),
+      _steps$slice$reverse2 = _toArray(_steps$slice$reverse),
       last = _steps$slice$reverse2[0],
       firsts = _steps$slice$reverse2.slice(1);
 
