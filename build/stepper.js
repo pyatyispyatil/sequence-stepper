@@ -1,1 +1,238 @@
-!function(root,factory){if("object"==typeof exports&&"object"==typeof module)module.exports=factory();else if("function"==typeof define&&define.amd)define([],factory);else{var a=factory();for(var i in a)("object"==typeof exports?exports:root)[i]=a[i]}}(this,function(){return function(modules){function __webpack_require__(moduleId){if(installedModules[moduleId])return installedModules[moduleId].exports;var module=installedModules[moduleId]={exports:{},id:moduleId,loaded:!1};return modules[moduleId].call(module.exports,module,module.exports,__webpack_require__),module.loaded=!0,module.exports}var installedModules={};return __webpack_require__.m=modules,__webpack_require__.c=installedModules,__webpack_require__.p="/build/",__webpack_require__(0)}([function(module,exports){"use strict";function _toArray(arr){return Array.isArray(arr)?arr:Array.from(arr)}function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor))throw new TypeError("Cannot call a class as a function")}function _sequence(steps,reject){var _steps$slice$reverse=steps.slice().reverse(),_steps$slice$reverse2=_toArray(_steps$slice$reverse),last=_steps$slice$reverse2[0],firsts=_steps$slice$reverse2.slice(1);return function(initialData){return firsts.reduce(function(nextStep,step){return function(comingStep,data){return step({next:function(data){return nextStep(comingStep,data)},reject:reject},data)}},last)({reject:reject},initialData)}}Object.defineProperty(exports,"__esModule",{value:!0});var _createClass=function(){function defineProperties(target,props){for(var i=0;i<props.length;i++){var descriptor=props[i];descriptor.enumerable=descriptor.enumerable||!1,descriptor.configurable=!0,"value"in descriptor&&(descriptor.writable=!0),Object.defineProperty(target,descriptor.key,descriptor)}}return function(Constructor,protoProps,staticProps){return protoProps&&defineProperties(Constructor.prototype,protoProps),staticProps&&defineProperties(Constructor,staticProps),Constructor}}(),StepDescriptor=function(){function StepDescriptor(step,stepper){var _this=this;_classCallCheck(this,StepDescriptor),this.id=0,this.id=StepDescriptor.ID_COUNTER,StepDescriptor.ID_COUNTER++,this.stepper=stepper,this.action=step,this.execute=function(data){return step(_this,data)}}return _createClass(StepDescriptor,[{key:"next",value:function(data){return this.stepper.next(data,this)}},{key:"remove",value:function(){this.stepper.remove(this)}},{key:"reject",value:function(data){this.stepper.reject(data)}}]),StepDescriptor}();StepDescriptor.ID_COUNTER=0;exports.Stepper=function(){function Stepper(steps){var _this2=this,onReject=arguments.length>1&&void 0!==arguments[1]?arguments[1]:function(){return null};_classCallCheck(this,Stepper),this.steps=[],this.currentStep=-1,steps.forEach(function(step){return _this2.add(step)}),this.reject=onReject}return _createClass(Stepper,[{key:"next",value:function(){var data=arguments.length>0&&void 0!==arguments[0]?arguments[0]:null,stepDescriptor=arguments.length>1&&void 0!==arguments[1]?arguments[1]:null;return stepDescriptor&&(this.currentStep=this.steps.findIndex(function(step){return step.id===stepDescriptor.id})),this.currentStep++,this.steps[this.currentStep].execute(data),this.currentStep===this.steps.length-1}},{key:"prev",value:function(){this.currentStep--}},{key:"remove",value:function(stepDescriptor){this.steps.splice(this.steps.findIndex(function(step){return step.id===stepDescriptor.id}),1)}},{key:"add",value:function(step){var index=arguments.length>1&&void 0!==arguments[1]?arguments[1]:null,stepDescriptor=new StepDescriptor(step,this);return null==index?this.steps.push(stepDescriptor):this.steps.splice(index,0,stepDescriptor),stepDescriptor}},{key:"getIndex",value:function(stepDescriptor){var index=this.steps.findIndex(function(step){return step.id===stepDescriptor.id});if(index===-1)throw new Error("Cannot find step in steps array");return index}},{key:"insertBefort",value:function(stepDescriptor,step){return this.add(step,this.getIndex(stepDescriptor)-1)}},{key:"insertAfter",value:function(stepDescriptor,step){return this.add(step,this.getIndex(stepDescriptor)+1)}},{key:"sequence",value:function(){return _sequence(this.steps.map(function(step){return step.raw}),this.reject)}}]),Stepper}();exports.sequence=_sequence}])});
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sequence = exports.Stepper = undefined;
+
+var _toArray2 = require('babel-runtime/helpers/toArray');
+
+var _toArray3 = _interopRequireDefault(_toArray2);
+
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var StepDescriptor = function () {
+  /**
+   * @param {Function} step - action, which will be carried out in the executing of this step
+   * @param {Stepper} stepper - instance of Stepper, which contains this StepDescriptor
+   * */
+  function StepDescriptor(step, stepper) {
+    var _this = this;
+
+    (0, _classCallCheck3.default)(this, StepDescriptor);
+    this.id = 0;
+
+    this.id = StepDescriptor.ID_COUNTER;
+    StepDescriptor.ID_COUNTER++;
+
+    this.stepper = stepper;
+    this.action = step;
+    this.execute = function (data) {
+      return step(_this, data);
+    };
+  }
+
+  (0, _createClass3.default)(StepDescriptor, [{
+    key: 'next',
+
+
+    /**
+     * @param {*} data
+     * */
+    value: function next(data) {
+      return this.stepper.next(data, this);
+    }
+  }, {
+    key: 'remove',
+    value: function remove() {
+      this.stepper.remove(this);
+    }
+
+    /**
+     * @param {*} data
+     * */
+
+  }, {
+    key: 'reject',
+    value: function reject(data) {
+      this.stepper.reject(data);
+    }
+  }]);
+  return StepDescriptor;
+}();
+
+StepDescriptor.ID_COUNTER = 0;
+
+var Stepper = exports.Stepper = function () {
+  /**
+   * @param {Function[]} steps - array of steps, which will be treated
+   * @param {Function} onReject - callback, which will be executing on some step
+   * */
+  function Stepper(steps) {
+    var _this2 = this;
+
+    var onReject = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
+      return null;
+    };
+    (0, _classCallCheck3.default)(this, Stepper);
+    this.steps = [];
+    this.currentStep = -1;
+
+    steps.forEach(function (step) {
+      return _this2.add(step);
+    });
+    this.reject = onReject;
+  }
+
+  (0, _createClass3.default)(Stepper, [{
+    key: 'next',
+
+
+    /**
+     * @param {*} [data]
+     * @param {StepDescriptor} [stepDescriptor]
+     * @return {Boolean} flag of the last step
+     * */
+    value: function next() {
+      var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var stepDescriptor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+      if (stepDescriptor) {
+        this.currentStep = this.steps.findIndex(function (step) {
+          return step.id === stepDescriptor.id;
+        });
+      }
+
+      this.currentStep++;
+      this.steps[this.currentStep].execute(data);
+
+      return this.currentStep === this.steps.length - 1;
+    }
+  }, {
+    key: 'prev',
+    value: function prev() {
+      this.currentStep--;
+    }
+
+    /**
+     * @param {StepDescriptor} stepDescriptor
+     * */
+
+  }, {
+    key: 'remove',
+    value: function remove(stepDescriptor) {
+      this.steps.splice(this.steps.findIndex(function (step) {
+        return step.id === stepDescriptor.id;
+      }), 1);
+    }
+
+    /**
+     * @param {Function} step
+     * @param {Number} index
+     * @return {StepDescriptor}
+     * */
+
+  }, {
+    key: 'add',
+    value: function add(step) {
+      var index = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+      var stepDescriptor = new StepDescriptor(step, this);
+
+      if (index == null) {
+        this.steps.push(stepDescriptor);
+      } else {
+        this.steps.splice(index, 0, stepDescriptor);
+      }
+
+      return stepDescriptor;
+    }
+
+    /**
+     * @param {StepDescriptor} stepDescriptor
+     * @return {Number}
+     * */
+
+  }, {
+    key: 'getIndex',
+    value: function getIndex(stepDescriptor) {
+      var index = this.steps.findIndex(function (step) {
+        return step.id === stepDescriptor.id;
+      });
+
+      if (index === -1) {
+        throw new Error('Cannot find step in steps array');
+      } else {
+        return index;
+      }
+    }
+
+    /**
+     * @param {StepDescriptor} stepDescriptor - descriptor of the step before which will be inserted a new step
+     * @param {Function} step - callback for the new step descriptor
+     * @return {StepDescriptor}
+     * */
+
+  }, {
+    key: 'insertBefort',
+    value: function insertBefort(stepDescriptor, step) {
+      return this.add(step, this.getIndex(stepDescriptor) - 1);
+    }
+
+    /**
+     * @param {StepDescriptor} stepDescriptor - descriptor of the step after which will be inserted a new step
+     * @param {Function} step - callback for the new step descriptor
+     * @return {StepDescriptor}
+     * */
+
+  }, {
+    key: 'insertAfter',
+    value: function insertAfter(stepDescriptor, step) {
+      return this.add(step, this.getIndex(stepDescriptor) + 1);
+    }
+
+    /**
+     * Treats steps and return a sequence of all steps. It can not be edited.
+     * In every step arguments will be a Object with "next" and "reject" methods.
+     * @return {Function} first step
+     * */
+
+  }, {
+    key: 'sequence',
+    value: function sequence() {
+      return _sequence(this.steps.map(function (step) {
+        return step.raw;
+      }), this.reject);
+    }
+  }]);
+  return Stepper;
+}();
+
+function _sequence(steps, reject) {
+  var _steps$slice$reverse = steps.slice().reverse(),
+      _steps$slice$reverse2 = (0, _toArray3.default)(_steps$slice$reverse),
+      last = _steps$slice$reverse2[0],
+      firsts = _steps$slice$reverse2.slice(1);
+
+  return function (initialData) {
+    return firsts.reduce(function (nextStep, step) {
+      return function (comingStep, data) {
+        return step({
+          next: function next(data) {
+            return nextStep(comingStep, data);
+          },
+          reject: reject
+        }, data);
+      };
+    }, last)({ reject: reject }, initialData);
+  };
+}
+exports.sequence = _sequence;
