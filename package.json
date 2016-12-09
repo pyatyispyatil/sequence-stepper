@@ -1,5 +1,5 @@
 {
-  "name": "stepper",
+  "name": "sequence-stepper",
   "version": "0.1.0",
   "description": "A small lib for asynchronous control stack of functions",
   "main": "src/main.js",
@@ -12,15 +12,17 @@
     "control",
     "stack",
     "function",
-    "asynchronous"
+    "asynchronous",
+    "sequence",
+    "steps"
   ],
   "bugs": {
     "email": "pyatyispyatil@gmail.com",
-    "url": "https://github.com/Gloooom/stepper/issues"
+    "url": "https://github.com/Gloooom/sequence-stepper/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Gloooom/stepper/"
+    "url": "https://github.com/Gloooom/sequence-stepper/"
   },
   "ava": {
     "require": "babel-register",
