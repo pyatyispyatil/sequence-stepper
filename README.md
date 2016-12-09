@@ -1,4 +1,4 @@
-#Stepper
+#sequence-stepper
 
 A small lib for asynchronous control stack of functions. It can start executing on any step in queue to the end.
 
