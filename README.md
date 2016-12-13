@@ -1,6 +1,6 @@
 #sequence-stepper
 
-A small lib for asynchronous control stack of functions. It can start executing on any step in queue to the end.
+The small lib for the asynchronous control of stack of functions. It can start an execution at any step in a queue till the end.
 
 ##Installation
 
@@ -11,7 +11,7 @@ npm install --save sequence-stepper
 ##Usage
 
 ###class Stepper
-Creating a stepper queue
+Creation a stepper queue
 ```js
 import {Stepper} from 'stepper';
 
@@ -22,22 +22,22 @@ let stepper = new Stepper([
 ]);
 ```
 
-Start executing
+Start an execution
 ```js
 stepper.next(data);
 ```
 
-You can return to the backward step with same code (backward step dos't execute)
+You can step back with the same code (backward step doesn't execute)
 ```js
 stepper.prev();
 ```
 
-Execute step after said stepDescriptor
+Execute a step after stepDescriptor
 ```js
 stepper.next(data, stepper[2]);
 ```
 
-Executing on some step in queue:
+Execution on some step in queue
 ```js
 let savedStepDescriptor;
 
@@ -58,7 +58,7 @@ savedStepDescriptor.next()//execute queue from saved step to the end;
 ```
 
 ###function sequence
-Its help you to make a function thats launches a queue to the end. You can make with that simple functional conveyors.
+Its help you to make a function thats launches a queue to the end. You can make it with this simple functional conveyors.
 ```js
 import {sequence} from 'Stepper'
 
@@ -71,7 +71,7 @@ let queue = sequence([
 let result = queue(5);//result === 42
 ```
 
-You can add asynchronous behavior into steps
+You can add an asynchronous behavior into a steps
 ```js
 let queue = sequence([
   (step, data) => setTimeout(() => step.next(data + 11), 100),
