@@ -2,6 +2,12 @@
 
 A small lib for asynchronous control stack of functions. It can start executing on any step in queue to the end.
 
+##Installation
+
+```console
+npm install --save sequence-stepper
+```
+
 ##Usage
 
 ###class Stepper
