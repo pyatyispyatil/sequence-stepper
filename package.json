@@ -1,6 +1,6 @@
 {
   "name": "sequence-stepper",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "A small lib for asynchronous control stack of functions",
   "main": "build/stepper.js",
   "scripts": {
