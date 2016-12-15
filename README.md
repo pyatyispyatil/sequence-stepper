@@ -13,14 +13,19 @@ npm install --save sequence-stepper
 ###class Stepper
 Creation a stepper queue
 ```js
-import {Stepper} from 'stepper';
+import {Stepper} from 'sequence-stepper';
 
 let stepper = new Stepper([
-  (step, data) => step.next(++data),
-  (step, data) => data > 2 ? step.next(data * 2) : step.reject('fail'),
-  (step, data) => console.log(data)
+  (step, data, done) => step.next(++data),
+  (step, data, done) => data > 2 ? step.next(data * 2) : step.reject('fail'),
+  (step, data, done) => done ? console.log(data) : null;
 ]);
 ```
+
+Callbacks arguments description
+ - _step_ - a StepDescription instance. With that you can manipulate an execution.
+ - _data_ - returned value of previous step
+ - _done_ - flag of last step
 
 Start an execution
 ```js
@@ -42,14 +47,14 @@ Execution on some step in queue
 let savedStepDescriptor;
 
 let stepper = new Stepper([
-  (step, data) => {...},
-  (step, data) => {
+  (step, data, done) => {...},
+  (step, data, done) => {
     //some behavior
     ...
     savedStepDescriptor = step;
     step.next();
   },
-  (step, data) => {...}
+  (step, data, done) => {...}
 ]);
 
 stepper.next()//execute queue till the end
@@ -63,9 +68,9 @@ Its help you to make a function thats launches a queue to the end. You can make 
 import {sequence} from 'Stepper'
 
 let queue = sequence([
-  (step, data) => step.next(data * 2),
-  (step, data) => step.next(data + 4),
-  (step, data) => data * 3,
+  (step, data, done) => step.next(data * 2),
+  (step, data, done) => step.next(data + 4),
+  (step, data, done) => data * 3,
 ])
 
 let result = queue(5);//result === 42
@@ -74,8 +79,8 @@ let result = queue(5);//result === 42
 You can add an asynchronous behavior into a steps
 ```js
 let queue = sequence([
-  (step, data) => setTimeout(() => step.next(data + 11), 100),
-  (step, data) => console.log(data * 2),
+  (step, data, done) => setTimeout(() => step.next(data + 11), 100),
+  (step, data, done) => console.log(data * 2),
 ])
 
 queue(10);//output 42 in console after 100ms
