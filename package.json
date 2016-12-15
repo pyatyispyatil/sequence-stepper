@@ -6,7 +6,8 @@
   "scripts": {
     "test": "ava tests.js",
     "transpile": "babel ./src --out-dir ./build",
-    "prepublish": "npm run transpile"
+    "prepublish": "npm run transpile",
+    "preversion": "npm run transpile"
   },
   "keywords": [
     "control",
