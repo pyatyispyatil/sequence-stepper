@@ -9,7 +9,7 @@ class StepDescriptor {
 
     this.stepper = stepper;
     this.action = step;
-    this.execute = (data) => step(this, data);
+    this.execute = (data, done) => step(this, data, done);
   }
 
   id = 0;
@@ -62,14 +62,20 @@ export class Stepper {
       this.currentStep = this.steps.findIndex((step) => step.id === stepDescriptor.id);
     }
 
-    this.currentStep++;
-    this.steps[this.currentStep].execute(data);
+    if (this.currentStep++ < this.steps.length - 1) {
+      let isEnded = this.currentStep === this.steps.length - 1;
 
-    return this.currentStep === this.steps.length - 1;
+      this.steps[this.currentStep].execute(data, isEnded);
+    } else {
+      throw new Error('Steps executing are ended. You cannot call "next" method.');
+    }
   }
 
-  prev() {
-    this.currentStep--;
+  /**
+   * @param {Number} stepsCount - distance to step back
+   * */
+  prev(stepsCount = 1) {
+    this.currentStep -= stepsCount;
   }
 
   /**
@@ -140,13 +146,12 @@ export class Stepper {
 
 export function sequence(steps, reject) {
   let [last, ...firsts] = steps.slice().reverse();
-  
-  return (initialData) =>
-    firsts.reduce((nextStep, step) =>
-      (comingStep, data) =>
-        step({
-          next: (data) => nextStep(comingStep, data),
-          reject
-        }, data), last)(
-      {reject}, initialData);
+  let seq = firsts.reduce((nextStep, step, index) =>
+    (comingStep, data, done) =>
+      step({
+        next: (data) => nextStep(comingStep, data, index === 0),
+        reject
+      }, data, done), last);
+
+  return (initialData) => seq({reject}, initialData, !firsts.length);
 }

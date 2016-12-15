@@ -1,6 +1,6 @@
 #sequence-stepper
 
-The small lib for the asynchronous control of stack of functions. It can start an execution at any step in a queue till the end.
+The small lib for the asynchronous control of queue of functions. It can start an execution at any step in a queue till the end.
 
 ##Installation
 
@@ -52,9 +52,9 @@ let stepper = new Stepper([
   (step, data) => {...}
 ]);
 
-stepper.next()//execute queue to the end
+stepper.next()//execute queue till the end
 
-savedStepDescriptor.next()//execute queue from saved step to the end;
+savedStepDescriptor.next()//execute queue from saved step till the end;
 ```
 
 ###function sequence
