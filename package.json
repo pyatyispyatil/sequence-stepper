@@ -1,12 +1,13 @@
 {
   "name": "sequence-stepper",
   "version": "0.3.0",
-  "description": "A small lib for asynchronous control stack of functions",
+  "description": "The small lib for the asynchronous control of queue of functions",
   "main": "build/stepper.js",
   "scripts": {
     "test": "ava tests.js",
     "transpile": "babel ./src --out-dir ./build",
-    "prepublish": "npm run transpile"
+    "prepublish": "npm run transpile",
+    "preversion": "npm run transpile"
   },
   "keywords": [
     "control",
