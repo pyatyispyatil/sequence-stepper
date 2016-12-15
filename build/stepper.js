@@ -27,8 +27,8 @@ var StepDescriptor = function () {
 
     this.stepper = stepper;
     this.action = step;
-    this.execute = function (data) {
-      return step(_this, data);
+    this.execute = function (data, done) {
+      return step(_this, data, done);
     };
   }
 
@@ -106,15 +106,25 @@ var Stepper = exports.Stepper = function () {
         });
       }
 
-      this.currentStep++;
-      this.steps[this.currentStep].execute(data);
+      if (this.currentStep++ < this.steps.length - 1) {
+        var isEnded = this.currentStep === this.steps.length - 1;
 
-      return this.currentStep === this.steps.length - 1;
+        this.steps[this.currentStep].execute(data, isEnded);
+      } else {
+        throw new Error('Steps executing are ended. You cannot call "next" method.');
+      }
     }
+
+    /**
+     * @param {Number} stepsCount - distance to step back
+     * */
+
   }, {
     key: 'prev',
     value: function prev() {
-      this.currentStep--;
+      var stepsCount = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+      this.currentStep -= stepsCount;
     }
 
     /**
@@ -218,17 +228,19 @@ function _sequence(steps, reject) {
       last = _steps$slice$reverse2[0],
       firsts = _steps$slice$reverse2.slice(1);
 
+  var seq = firsts.reduce(function (nextStep, step, index) {
+    return function (comingStep, data, done) {
+      return step({
+        next: function next(data) {
+          return nextStep(comingStep, data, index === 0);
+        },
+        reject: reject
+      }, data, done);
+    };
+  }, last);
+
   return function (initialData) {
-    return firsts.reduce(function (nextStep, step) {
-      return function (comingStep, data) {
-        return step({
-          next: function next(data) {
-            return nextStep(comingStep, data);
-          },
-          reject: reject
-        }, data);
-      };
-    }, last)({ reject: reject }, initialData);
+    return seq({ reject: reject }, initialData, !firsts.length);
   };
 }
 exports.sequence = _sequence;
