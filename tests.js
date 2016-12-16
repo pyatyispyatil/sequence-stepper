@@ -20,13 +20,13 @@ class Counter {
 
 function createSteps(count, passedStepsCounter, descriptors = []) {
   return (new Array(count)).fill(null).map((itm, index) => (step, data, done) => {
-    if (index - 1 === data ? 1 : 0) {
+    if (index === data) {
       passedStepsCounter.add();
     }
 
     descriptors[index] = step;
 
-    step[done ? 'reject' : 'next'](index);
+    step[done ? 'reject' : 'next'](index + 1);
   });
 }
 
@@ -39,7 +39,7 @@ function createWrappedSteps(count) {
     passedSteps = new Counter(),
     steps = createSteps(count, passedSteps, descriptors);
 
-  return {startValue: -1, reject, descriptors, passedSteps, steps, count};
+  return {startValue: 0, reject, descriptors, passedSteps, steps, count};
 }
 
 
@@ -58,6 +58,58 @@ function createStepperAndRun(count) {
   stepper.next(testObj.startValue);
 
   return testObj;
+}
+
+
+function checkAsyncHoleyStepper() {
+  test.cb('checking async holey Stepper with inserting steps', (t) => {
+    let completedSteps = {};
+    let stepper = new Stepper([
+      (step) => {
+        completedSteps[0] = true;
+        step.next();
+      },
+      (step) => {
+        completedSteps[1] = true;
+        setTimeout(() => {
+          step.insertAfter((step) => {
+            completedSteps[2] = true;
+            setTimeout(() => {
+              step.insertAfter((step) => {
+                completedSteps[3] = true;
+                step.next();
+              });
+              step.next();
+            }, 1);
+          });
+          step.next();
+        }, 1)
+      },
+      () => {
+        completedSteps[4] = true;
+
+        let indexes = Object.keys(completedSteps).sort(),
+          allCompleted = true;
+
+        for (let i = 0; i++; i < 5) {
+          if (indexes[i] !== i) {
+            allCompleted = false;
+            break;
+          }
+        }
+
+        if (allCompleted) {
+          t.pass();
+        } else {
+          t.fail();
+        }
+
+        t.end();
+      }
+    ]);
+
+    stepper.next();
+  });
 }
 
 function checkValidEnding(factory, title) {
@@ -87,9 +139,9 @@ function testShiftedValidEnding(factory, title) {
       testObj.passedSteps.reset();
 
       if (shift < stepsCount - 1) {
-        testObj.descriptors[shift].next(shift);
+        testObj.descriptors[shift].next(shift + 1);
       } else {
-        testObj.descriptors[shift].reject(shift);
+        testObj.descriptors[shift].reject(shift + 1);
       }
 
       if (testObj.reject.state && testObj.passedSteps.get() === stepsCount - 1 - shift) {
@@ -113,3 +165,4 @@ checkValidEnding(createStepperAndRun, 'Stepper instance');
 
 testShiftedValidEnding(createSequenceAndRun, 'sequence');
 testShiftedValidEnding(createStepperAndRun, 'Stepper instance');
+checkAsyncHoleyStepper();

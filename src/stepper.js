@@ -22,7 +22,7 @@ class StepDescriptor {
    * @param {*} [data]
    * */
   next(data) {
-    return this.stepper.next(data, this);
+    this.stepper.next(data, this);
   }
 
   remove() {
@@ -34,6 +34,22 @@ class StepDescriptor {
    * */
   reject(data) {
     this.stepper.reject(data);
+  }
+
+  /**
+   * @param {Function} step
+   * @return {StepDescriptor}
+   * */
+  insertAfter(step) {
+    return this.stepper.insertAfter(this, step);
+  }
+
+  /**
+   * @param {Function} step
+   * @return {StepDescriptor}
+   * */
+  insertBefore(step) {
+    return this.stepper.insertBefore(this, step);
   }
 }
 
