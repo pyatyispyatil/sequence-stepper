@@ -10,59 +10,77 @@ function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var StepDescriptor = function () {
-  /**
-   * @param {Function} step - action, which will be carried out in the executing of this step
-   * @param {Stepper} stepper - instance of Stepper, which contains this StepDescriptor
-   * */
-  function StepDescriptor(step, stepper) {
-    var _this = this;
+var StepDescriptor =
+/**
+ * @param {Function} step - action, which will be carried out in the executing of this step
+ * @param {Stepper} stepper - instance of Stepper, which contains this StepDescriptor
+ * */
+function StepDescriptor(step, stepper) {
+  var _this = this;
 
-    _classCallCheck(this, StepDescriptor);
+  _classCallCheck(this, StepDescriptor);
 
-    this.id = 0;
+  _initialiseProps.call(this);
 
-    this.id = StepDescriptor.ID_COUNTER;
-    StepDescriptor.ID_COUNTER++;
+  this.id = StepDescriptor.ID_COUNTER;
+  StepDescriptor.ID_COUNTER++;
 
-    this.stepper = stepper;
-    this.action = step;
-    this.execute = function (data, done) {
-      return step(_this, data, done);
-    };
-  }
+  this.stepper = stepper;
+  this.action = step;
+  this.execute = function (data, done) {
+    return step(_this, data, done);
+  };
+}
 
-  _createClass(StepDescriptor, [{
-    key: 'next',
+/**
+ * @param {*} [data]
+ * */
 
 
-    /**
-     * @param {*} [data]
-     * */
-    value: function next(data) {
-      return this.stepper.next(data, this);
-    }
-  }, {
-    key: 'remove',
-    value: function remove() {
-      this.stepper.remove(this);
-    }
+/**
+ * @param {*} data
+ * */
 
-    /**
-     * @param {*} data
-     * */
 
-  }, {
-    key: 'reject',
-    value: function reject(data) {
-      this.stepper.reject(data);
-    }
-  }]);
+/**
+ * @param {Function} step
+ * @return {StepDescriptor}
+ * */
 
-  return StepDescriptor;
-}();
+
+/**
+ * @param {Function} step
+ * @return {StepDescriptor}
+ * */
+;
 
 StepDescriptor.ID_COUNTER = 0;
+
+var _initialiseProps = function _initialiseProps() {
+  var _this3 = this;
+
+  this.id = 0;
+
+  this.next = function (data) {
+    _this3.stepper.next(data, _this3);
+  };
+
+  this.remove = function () {
+    _this3.stepper.remove(_this3);
+  };
+
+  this.reject = function (data) {
+    _this3.stepper.reject(data);
+  };
+
+  this.insertAfter = function (step) {
+    return _this3.stepper.insertAfter(_this3, step);
+  };
+
+  this.insertBefore = function (step) {
+    return _this3.stepper.insertBefore(_this3, step);
+  };
+};
 
 var Stepper = exports.Stepper = function () {
   /**
@@ -128,6 +146,18 @@ var Stepper = exports.Stepper = function () {
     }
 
     /**
+     * Start execution a queue from start
+     * @param {*} data
+     * */
+
+  }, {
+    key: 'start',
+    value: function start(data) {
+      this.currentStep = -1;
+      this.next(data);
+    }
+
+    /**
      * @param {StepDescriptor} stepDescriptor
      * */
 
@@ -178,6 +208,17 @@ var Stepper = exports.Stepper = function () {
       } else {
         return index;
       }
+    }
+
+    /**
+     * @param {Number} index - position in steps array
+     * @return {StepDescriptor}
+     * */
+
+  }, {
+    key: 'getStep',
+    value: function getStep(index) {
+      return this.steps[index];
     }
 
     /**
