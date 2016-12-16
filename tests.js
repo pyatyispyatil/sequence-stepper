@@ -88,10 +88,10 @@ function checkAsyncHoleyStepper() {
       () => {
         completedSteps[4] = true;
 
-        let indexes = Object.keys(completedSteps).sort(),
+        let indexes = Object.keys(completedSteps).map((val) => parseInt(val)).sort(),
           allCompleted = true;
 
-        for (let i = 0; i++; i < 5) {
+        for (let i = 0; i < 5; i++) {
           if (indexes[i] !== i) {
             allCompleted = false;
             break;
