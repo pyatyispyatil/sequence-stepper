@@ -21,36 +21,36 @@ class StepDescriptor {
   /**
    * @param {*} [data]
    * */
-  next(data) {
+  next = (data) => {
     this.stepper.next(data, this);
-  }
+  };
 
-  remove() {
+  remove = () => {
     this.stepper.remove(this);
-  }
+  };
 
   /**
    * @param {*} data
    * */
-  reject(data) {
+  reject = (data) => {
     this.stepper.reject(data);
-  }
+  };
 
   /**
    * @param {Function} step
    * @return {StepDescriptor}
    * */
-  insertAfter(step) {
+  insertAfter = (step) => {
     return this.stepper.insertAfter(this, step);
-  }
+  };
 
   /**
    * @param {Function} step
    * @return {StepDescriptor}
    * */
-  insertBefore(step) {
+  insertBefore = (step) => {
     return this.stepper.insertBefore(this, step);
-  }
+  };
 }
 
 export class Stepper {
@@ -95,6 +95,15 @@ export class Stepper {
   }
 
   /**
+   * Start execution a queue from start
+   * @param {*} data
+   * */
+  start(data) {
+    this.currentStep = -1;
+    this.next(data);
+  }
+
+  /**
    * @param {StepDescriptor} stepDescriptor
    * */
   remove(stepDescriptor) {
@@ -130,6 +139,14 @@ export class Stepper {
     } else {
       return index;
     }
+  }
+
+  /**
+   * @param {Number} index - position in steps array
+   * @return {StepDescriptor}
+   * */
+  getStep(index) {
+    return this.steps[index];
   }
 
   /**

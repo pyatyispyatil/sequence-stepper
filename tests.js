@@ -55,28 +55,41 @@ function createStepperAndRun(count) {
   let testObj = createWrappedSteps(count),
     stepper = new Stepper(testObj.steps, testObj.reject.cb);
 
-  stepper.next(testObj.startValue);
+  stepper.start(testObj.startValue);
 
   return testObj;
 }
 
+function makeSequenceChecker(desiredStepsSeq, onFail) {
+  let stepsLeft = desiredStepsSeq.slice();
+
+  return (index) => {
+    const [current, ...rest] = stepsLeft;
+
+    if (current !== index) {
+      onFail(`fail on step ${current}`);
+    }
+
+    stepsLeft = rest;
+  }
+}
 
 function checkAsyncHoleyStepper() {
   test.cb('checking async holey Stepper with inserting steps', (t) => {
-    let completedSteps = {};
+    let checker = makeSequenceChecker([0, 1, 2, 3, 4], (message) => t.fail(message));
     let stepper = new Stepper([
       (step) => {
-        completedSteps[0] = true;
+        checker(0);
         step.next();
       },
       (step) => {
-        completedSteps[1] = true;
+        checker(1);
         setTimeout(() => {
           step.insertAfter((step) => {
-            completedSteps[2] = true;
+            checker(2);
             setTimeout(() => {
               step.insertAfter((step) => {
-                completedSteps[3] = true;
+                checker(3);
                 step.next();
               });
               step.next();
@@ -86,24 +99,9 @@ function checkAsyncHoleyStepper() {
         }, 1)
       },
       () => {
-        completedSteps[4] = true;
+        checker(4);
 
-        let indexes = Object.keys(completedSteps).map((val) => parseInt(val)).sort(),
-          allCompleted = true;
-
-        for (let i = 0; i < 5; i++) {
-          if (indexes[i] !== i) {
-            allCompleted = false;
-            break;
-          }
-        }
-
-        if (allCompleted) {
-          t.pass();
-        } else {
-          t.fail();
-        }
-
+        t.pass();
         t.end();
       }
     ]);
