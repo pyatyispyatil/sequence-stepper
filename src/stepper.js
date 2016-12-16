@@ -19,7 +19,7 @@ class StepDescriptor {
   static ID_COUNTER = 0;
 
   /**
-   * @param {*} data
+   * @param {*} [data]
    * */
   next(data) {
     return this.stepper.next(data, this);
@@ -40,7 +40,7 @@ class StepDescriptor {
 export class Stepper {
   /**
    * @param {Function[]} steps - array of steps, which will be treated
-   * @param {Function} onReject - callback, which will be executing on some step
+   * @param {Function} [onReject] - callback, which will be executing on some step
    * */
   constructor(steps, onReject = () => null) {
     steps.forEach((step) => this.add(step));
@@ -144,7 +144,11 @@ export class Stepper {
   }
 }
 
-export function sequence(steps, reject) {
+/**
+ * @param {Function[]} steps
+ * @param {Function} [reject]
+ * */
+export function sequence(steps, reject = () => null) {
   let [last, ...firsts] = steps.slice().reverse();
   let seq = firsts.reduce((nextStep, step, index) =>
     (comingStep, data, done) =>

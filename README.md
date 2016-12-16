@@ -19,7 +19,7 @@ let stepper = new Stepper([
   (step, data, done) => step.next(++data),
   (step, data, done) => data > 2 ? step.next(data * 2) : step.reject('fail'),
   (step, data, done) => done ? console.log(data) : null;
-]);
+], (message) => console.log(message));
 ```
 
 Callbacks arguments description
