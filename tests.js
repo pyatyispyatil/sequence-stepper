@@ -60,20 +60,22 @@ function createStepperAndRun(count) {
   return testObj;
 }
 
-function checkValidEnding(factory, validator) {
-  let stepsCount = 10, testObj = factory(stepsCount);
+function checkValidEnding(factory, title) {
+  test.cb(`create ${title} and full series executing`, (t) => {
+    let stepsCount = 10, testObj = factory(stepsCount);
 
-  if (testObj.reject.state && testObj.passedSteps.get() === stepsCount) {
-    validator.pass();
-  } else {
-    validator.fail(`
+    if (testObj.reject.state && testObj.passedSteps.get() === stepsCount) {
+      t.pass();
+    } else {
+      t.fail(`
     reject on last step (it must be a true): ${testObj.reject.state}
     steps count: ${stepsCount}
     steps passed: ${testObj.passedSteps.get()}
     `);
-  }
+    }
 
-  validator.end();
+    t.end();
+  });
 }
 
 function testShiftedValidEnding(factory, title) {
@@ -94,11 +96,11 @@ function testShiftedValidEnding(factory, title) {
         t.pass();
       } else {
         t.fail(`
-    reject on last step (it must be a true): ${testObj.reject.state}
-    steps count: ${stepsCount}
-    shift: ${shift}
-    steps passed: ${testObj.passedSteps.get()}
-    `);
+          reject on last step (it must be a true): ${testObj.reject.state}
+          steps count: ${stepsCount}
+          shift: ${shift}
+          steps passed: ${testObj.passedSteps.get()}
+          `);
       }
 
       t.end();
@@ -106,10 +108,8 @@ function testShiftedValidEnding(factory, title) {
   }
 }
 
-test.cb('create sequence and full series executing',
-  (t) => checkValidEnding(createSequenceAndRun, t));
-test.cb('create Stepper instance and full series executing',
-  (t) => checkValidEnding(createStepperAndRun, t));
+checkValidEnding(createSequenceAndRun, 'sequence');
+checkValidEnding(createStepperAndRun, 'Stepper instance');
 
 testShiftedValidEnding(createSequenceAndRun, 'sequence');
 testShiftedValidEnding(createStepperAndRun, 'Stepper instance');
