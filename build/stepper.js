@@ -37,7 +37,7 @@ var StepDescriptor = function () {
 
 
     /**
-     * @param {*} data
+     * @param {*} [data]
      * */
     value: function next(data) {
       return this.stepper.next(data, this);
@@ -67,7 +67,7 @@ StepDescriptor.ID_COUNTER = 0;
 var Stepper = exports.Stepper = function () {
   /**
    * @param {Function[]} steps - array of steps, which will be treated
-   * @param {Function} onReject - callback, which will be executing on some step
+   * @param {Function} [onReject] - callback, which will be executing on some step
    * */
   function Stepper(steps) {
     var _this2 = this;
@@ -222,7 +222,17 @@ var Stepper = exports.Stepper = function () {
   return Stepper;
 }();
 
-function _sequence(steps, reject) {
+/**
+ * @param {Function[]} steps
+ * @param {Function} [reject]
+ * */
+
+
+function _sequence(steps) {
+  var reject = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
+    return null;
+  };
+
   var _steps$slice$reverse = steps.slice().reverse(),
       _steps$slice$reverse2 = _toArray(_steps$slice$reverse),
       last = _steps$slice$reverse2[0],

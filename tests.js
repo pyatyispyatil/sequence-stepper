@@ -20,13 +20,13 @@ class Counter {
 
 function createSteps(count, passedStepsCounter, descriptors = []) {
   return (new Array(count)).fill(null).map((itm, index) => (step, data, done) => {
-    if (index - 1 === data ? 1 : 0) {
+    if (index === data) {
       passedStepsCounter.add();
     }
 
     descriptors[index] = step;
 
-    step[done ? 'reject' : 'next'](index);
+    step[done ? 'reject' : 'next'](index + 1);
   });
 }
 
@@ -39,7 +39,7 @@ function createWrappedSteps(count) {
     passedSteps = new Counter(),
     steps = createSteps(count, passedSteps, descriptors);
 
-  return {startValue: -1, reject, descriptors, passedSteps, steps, count};
+  return {startValue: 0, reject, descriptors, passedSteps, steps, count};
 }
 
 
@@ -55,25 +55,77 @@ function createStepperAndRun(count) {
   let testObj = createWrappedSteps(count),
     stepper = new Stepper(testObj.steps, testObj.reject.cb);
 
-  stepper.next(testObj.startValue);
+  stepper.start(testObj.startValue);
 
   return testObj;
 }
 
-function checkValidEnding(factory, validator) {
-  let stepsCount = 10, testObj = factory(stepsCount);
+function makeSequenceChecker(desiredStepsSeq, onFail) {
+  let stepsLeft = desiredStepsSeq.slice();
 
-  if (testObj.reject.state && testObj.passedSteps.get() === stepsCount) {
-    validator.pass();
-  } else {
-    validator.fail(`
+  return (index) => {
+    const [current, ...rest] = stepsLeft;
+
+    if (current !== index) {
+      onFail(`fail on step ${current}`);
+    }
+
+    stepsLeft = rest;
+  }
+}
+
+function checkAsyncHoleyStepper() {
+  test.cb('checking async holey Stepper with inserting steps', (t) => {
+    let checker = makeSequenceChecker([0, 1, 2, 3, 4], (message) => t.fail(message));
+    let stepper = new Stepper([
+      (step) => {
+        checker(0);
+        step.next();
+      },
+      (step) => {
+        checker(1);
+        setTimeout(() => {
+          step.insertAfter((step) => {
+            checker(2);
+            setTimeout(() => {
+              step.insertAfter((step) => {
+                checker(3);
+                step.next();
+              });
+              step.next();
+            }, 1);
+          });
+          step.next();
+        }, 1)
+      },
+      () => {
+        checker(4);
+
+        t.pass();
+        t.end();
+      }
+    ]);
+
+    stepper.next();
+  });
+}
+
+function checkValidEnding(factory, title) {
+  test.cb(`create ${title} and full series executing`, (t) => {
+    let stepsCount = 10, testObj = factory(stepsCount);
+
+    if (testObj.reject.state && testObj.passedSteps.get() === stepsCount) {
+      t.pass();
+    } else {
+      t.fail(`
     reject on last step (it must be a true): ${testObj.reject.state}
     steps count: ${stepsCount}
     steps passed: ${testObj.passedSteps.get()}
     `);
-  }
+    }
 
-  validator.end();
+    t.end();
+  });
 }
 
 function testShiftedValidEnding(factory, title) {
@@ -85,20 +137,20 @@ function testShiftedValidEnding(factory, title) {
       testObj.passedSteps.reset();
 
       if (shift < stepsCount - 1) {
-        testObj.descriptors[shift].next(shift);
+        testObj.descriptors[shift].next(shift + 1);
       } else {
-        testObj.descriptors[shift].reject(shift);
+        testObj.descriptors[shift].reject(shift + 1);
       }
 
       if (testObj.reject.state && testObj.passedSteps.get() === stepsCount - 1 - shift) {
         t.pass();
       } else {
         t.fail(`
-    reject on last step (it must be a true): ${testObj.reject.state}
-    steps count: ${stepsCount}
-    shift: ${shift}
-    steps passed: ${testObj.passedSteps.get()}
-    `);
+          reject on last step (it must be a true): ${testObj.reject.state}
+          steps count: ${stepsCount}
+          shift: ${shift}
+          steps passed: ${testObj.passedSteps.get()}
+          `);
       }
 
       t.end();
@@ -106,10 +158,9 @@ function testShiftedValidEnding(factory, title) {
   }
 }
 
-test.cb('create sequence and full series executing',
-  (t) => checkValidEnding(createSequenceAndRun, t));
-test.cb('create Stepper instance and full series executing',
-  (t) => checkValidEnding(createStepperAndRun, t));
+checkValidEnding(createSequenceAndRun, 'sequence');
+checkValidEnding(createStepperAndRun, 'Stepper instance');
 
 testShiftedValidEnding(createSequenceAndRun, 'sequence');
 testShiftedValidEnding(createStepperAndRun, 'Stepper instance');
+checkAsyncHoleyStepper();

@@ -19,7 +19,7 @@ let stepper = new Stepper([
   (step, data, done) => step.next(++data),
   (step, data, done) => data > 2 ? step.next(data * 2) : step.reject('fail'),
   (step, data, done) => done ? console.log(data) : null;
-]);
+], (message) => console.log(message));
 ```
 
 Callbacks arguments description
@@ -29,7 +29,7 @@ Callbacks arguments description
 
 Start an execution
 ```js
-stepper.next(data);
+stepper.start(data);
 ```
 
 You can step back with the same code (backward step doesn't execute)
@@ -39,7 +39,7 @@ stepper.prev();
 
 Execute a step after stepDescriptor
 ```js
-stepper.next(data, stepper[2]);
+stepper.next(data, stepper.steps[2]);
 ```
 
 Execution on some step in queue
@@ -47,19 +47,63 @@ Execution on some step in queue
 let savedStepDescriptor;
 
 let stepper = new Stepper([
-  (step, data, done) => {...},
-  (step, data, done) => {
+  (step) => {...},
+  (step) => {
     //some behavior
     ...
     savedStepDescriptor = step;
     step.next();
   },
-  (step, data, done) => {...}
+  (step) => {...}
 ]);
 
-stepper.next()//execute queue till the end
+stepper.start()//execute queue till the end
 
 savedStepDescriptor.next()//execute queue from saved step till the end;
+```
+
+insertBefore and insertAfter usage
+```js
+let stepper = new Stepper([
+  ...
+  (step) => {
+    step.insertAfter((step) => step.next());
+    step.insertBefore((step) => step.next());
+    step.next();
+  },
+  ...
+]);
+```
+or
+```js
+let stepper = new Stepper([...]);
+stepper.insertAfter(stepper.getStep(2), ({next}) => next());
+```
+or
+```js
+let savedStepDescriptor;
+
+let stepper = new Stepper([
+  ...
+  (step) => {
+    savedStepDescriptor = step;
+    step.next();
+  },
+  ...
+]);
+
+savedStepDescriptor.insertAfter(({next}) => next());
+```
+
+Brief usage of Stepper
+```js
+let stepper = new Stepper([
+  ({next}) => next(),
+  ({next}) => setTimeout(next, 100),
+  ({next}) => console.log('complete')
+]);
+
+stepper.start();
 ```
 
 ###function sequence
@@ -85,3 +129,8 @@ let queue = sequence([
 
 queue(10);//output 42 in console after 100ms
 ```
+
+
+###Notice
+In outline Stepper and sequence has a similar behavior. 
+If you don`t want to use insertAfter and insertBefore, you can restrict a sequence.

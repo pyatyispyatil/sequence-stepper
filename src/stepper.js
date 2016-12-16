@@ -19,28 +19,44 @@ class StepDescriptor {
   static ID_COUNTER = 0;
 
   /**
-   * @param {*} data
+   * @param {*} [data]
    * */
-  next(data) {
-    return this.stepper.next(data, this);
-  }
+  next = (data) => {
+    this.stepper.next(data, this);
+  };
 
-  remove() {
+  remove = () => {
     this.stepper.remove(this);
-  }
+  };
 
   /**
    * @param {*} data
    * */
-  reject(data) {
+  reject = (data) => {
     this.stepper.reject(data);
-  }
+  };
+
+  /**
+   * @param {Function} step
+   * @return {StepDescriptor}
+   * */
+  insertAfter = (step) => {
+    return this.stepper.insertAfter(this, step);
+  };
+
+  /**
+   * @param {Function} step
+   * @return {StepDescriptor}
+   * */
+  insertBefore = (step) => {
+    return this.stepper.insertBefore(this, step);
+  };
 }
 
 export class Stepper {
   /**
    * @param {Function[]} steps - array of steps, which will be treated
-   * @param {Function} onReject - callback, which will be executing on some step
+   * @param {Function} [onReject] - callback, which will be executing on some step
    * */
   constructor(steps, onReject = () => null) {
     steps.forEach((step) => this.add(step));
@@ -76,6 +92,15 @@ export class Stepper {
    * */
   prev(stepsCount = 1) {
     this.currentStep -= stepsCount;
+  }
+
+  /**
+   * Start execution a queue from start
+   * @param {*} data
+   * */
+  start(data) {
+    this.currentStep = -1;
+    this.next(data);
   }
 
   /**
@@ -117,6 +142,14 @@ export class Stepper {
   }
 
   /**
+   * @param {Number} index - position in steps array
+   * @return {StepDescriptor}
+   * */
+  getStep(index) {
+    return this.steps[index];
+  }
+
+  /**
    * @param {StepDescriptor} stepDescriptor - descriptor of the step before which will be inserted a new step
    * @param {Function} step - callback for the new step descriptor
    * @return {StepDescriptor}
@@ -144,7 +177,11 @@ export class Stepper {
   }
 }
 
-export function sequence(steps, reject) {
+/**
+ * @param {Function[]} steps
+ * @param {Function} [reject]
+ * */
+export function sequence(steps, reject = () => null) {
   let [last, ...firsts] = steps.slice().reverse();
   let seq = firsts.reduce((nextStep, step, index) =>
     (comingStep, data, done) =>
