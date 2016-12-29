@@ -75,7 +75,7 @@ export class Stepper {
    * */
   next(data = null, stepDescriptor = null) {
     if (stepDescriptor) {
-      this.currentStep = this.steps.findIndex((step) => step.id === stepDescriptor.id);
+      this.currentStep = this.getIndex(stepDescriptor);
     }
 
     if (this.currentStep++ < this.steps.length - 1) {
@@ -107,7 +107,7 @@ export class Stepper {
    * @param {StepDescriptor} stepDescriptor
    * */
   remove(stepDescriptor) {
-    this.steps.splice(this.steps.findIndex((step) => step.id === stepDescriptor.id), 1);
+    this.steps.splice(this.getIndex(stepDescriptor), 1);
   }
 
   /**
