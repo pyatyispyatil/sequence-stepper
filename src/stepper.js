@@ -21,36 +21,26 @@ class StepDescriptor {
   /**
    * @param {*} [data]
    * */
-  next = (data) => {
-    this.stepper.next(data, this);
-  };
+  next = (data) => this.stepper.next(data, this);
 
-  remove = () => {
-    this.stepper.remove(this);
-  };
+  remove = () => this.stepper.remove(this);
 
   /**
    * @param {*} data
    * */
-  reject = (data) => {
-    this.stepper.reject(data);
-  };
+  reject = (data) => this.stepper.reject(data);
 
   /**
    * @param {Function} step
    * @return {StepDescriptor}
    * */
-  insertAfter = (step) => {
-    return this.stepper.insertAfter(this, step);
-  };
+  insertAfter = (step) => this.stepper.insertAfter(this, step);
 
   /**
    * @param {Function} step
    * @return {StepDescriptor}
    * */
-  insertBefore = (step) => {
-    return this.stepper.insertBefore(this, step);
-  };
+  insertBefore = (step) => this.stepper.insertBefore(this, step);
 }
 
 export class Stepper {
@@ -71,7 +61,6 @@ export class Stepper {
   /**
    * @param {*} [data]
    * @param {StepDescriptor} [stepDescriptor]
-   * @return {Boolean} flag of the last step
    * */
   next(data = null, stepDescriptor = null) {
     if (stepDescriptor) {
@@ -186,7 +175,7 @@ export function sequence(steps, reject = () => null) {
   let seq = firsts.reduce((nextStep, step, index) =>
     (comingStep, data, done) =>
       step({
-        next: (data) => nextStep(comingStep, data, index === 0),
+        next: (nextData) => nextStep(comingStep, nextData, index === 0),
         reject
       }, data, done), last);
 

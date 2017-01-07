@@ -109,13 +109,13 @@ stepper.start();
 ###function sequence
 Its help you to make a function thats launches a queue to the end. You can make it with this simple functional conveyors.
 ```js
-import {sequence} from 'Stepper'
+import {sequence} from 'sequence-stepper';
 
 let queue = sequence([
   (step, data, done) => step.next(data * 2),
   (step, data, done) => step.next(data + 4),
   (step, data, done) => data * 3,
-])
+]);
 
 let result = queue(5);//result === 42
 ```
@@ -125,7 +125,7 @@ You can add an asynchronous behavior into a steps
 let queue = sequence([
   (step, data, done) => setTimeout(() => step.next(data + 11), 100),
   (step, data, done) => console.log(data * 2),
-])
+]);
 
 queue(10);//output 42 in console after 100ms
 ```
