@@ -62,15 +62,15 @@ var _initialiseProps = function _initialiseProps() {
   this.id = 0;
 
   this.next = function (data) {
-    _this3.stepper.next(data, _this3);
+    return _this3.stepper.next(data, _this3);
   };
 
   this.remove = function () {
-    _this3.stepper.remove(_this3);
+    return _this3.stepper.remove(_this3);
   };
 
   this.reject = function (data) {
-    _this3.stepper.reject(data);
+    return _this3.stepper.reject(data);
   };
 
   this.insertAfter = function (step) {
@@ -112,16 +112,13 @@ var Stepper = exports.Stepper = function () {
     /**
      * @param {*} [data]
      * @param {StepDescriptor} [stepDescriptor]
-     * @return {Boolean} flag of the last step
      * */
     value: function next() {
       var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var stepDescriptor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
       if (stepDescriptor) {
-        this.currentStep = this.steps.findIndex(function (step) {
-          return step.id === stepDescriptor.id;
-        });
+        this.currentStep = this.getIndex(stepDescriptor);
       }
 
       if (this.currentStep++ < this.steps.length - 1) {
@@ -164,9 +161,7 @@ var Stepper = exports.Stepper = function () {
   }, {
     key: 'remove',
     value: function remove(stepDescriptor) {
-      this.steps.splice(this.steps.findIndex(function (step) {
-        return step.id === stepDescriptor.id;
-      }), 1);
+      this.steps.splice(this.getIndex(stepDescriptor), 1);
     }
 
     /**
@@ -282,8 +277,8 @@ function _sequence(steps) {
   var seq = firsts.reduce(function (nextStep, step, index) {
     return function (comingStep, data, done) {
       return step({
-        next: function next(data) {
-          return nextStep(comingStep, data, index === 0);
+        next: function next(nextData) {
+          return nextStep(comingStep, nextData, index === 0);
         },
         reject: reject
       }, data, done);
