@@ -225,7 +225,7 @@ var Stepper = exports.Stepper = function () {
   }, {
     key: 'insertBefore',
     value: function insertBefore(stepDescriptor, step) {
-      return this.add(step, this.getIndex(stepDescriptor) - 1);
+      return this.add(step, this.getIndex(stepDescriptor));
     }
 
     /**
