@@ -143,7 +143,7 @@ export class Stepper {
    * @param {Function} step - callback for the new step descriptor
    * @return {StepDescriptor}
    * */
-  insertBefort(stepDescriptor, step) {
+  insertBefore(stepDescriptor, step) {
     return this.add(step, this.getIndex(stepDescriptor) - 1);
   }
 
