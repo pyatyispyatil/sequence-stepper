@@ -144,7 +144,7 @@ export class Stepper {
    * @return {StepDescriptor}
    * */
   insertBefore(stepDescriptor, step) {
-    return this.add(step, this.getIndex(stepDescriptor) - 1);
+    return this.add(step, this.getIndex(stepDescriptor));
   }
 
   /**
