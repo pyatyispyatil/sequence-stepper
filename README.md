@@ -1,16 +1,16 @@
-#sequence-stepper
+# sequence-stepper
 
 The small lib for the asynchronous control of queue of functions. It can start an execution at any step in a queue till the end.
 
-##Installation
+## Installation
 
 ```console
 npm install --save sequence-stepper
 ```
 
-##Usage
+## Usage
 
-###class Stepper
+### class Stepper
 Creation a stepper queue
 ```js
 import {Stepper} from 'sequence-stepper';
@@ -106,7 +106,7 @@ let stepper = new Stepper([
 stepper.start();
 ```
 
-###function sequence
+### function sequence
 Its help you to make a function thats launches a queue to the end. You can make it with this simple functional conveyors.
 ```js
 import {sequence} from 'sequence-stepper';
@@ -131,6 +131,6 @@ queue(10);//output 42 in console after 100ms
 ```
 
 
-###Notice
+### Notice
 In outline Stepper and sequence has a similar behavior. 
 If you don`t want to use insertAfter and insertBefore, you can restrict a sequence.
