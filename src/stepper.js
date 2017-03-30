@@ -117,6 +117,18 @@ export class Stepper {
   }
 
   /**
+   * @param {StepDescriptor} firstStepDescriptor
+   * @param {StepDescriptor} secondStepDescriptor
+   * */
+  swap(firstStepDescriptor, secondStepDescriptor) {
+    const firstIndex = this.getIndex(firstStepDescriptor);
+    const secondIndex = this.getIndex(secondStepDescriptor);
+
+    this.steps.splice(firstIndex, 1, secondStepDescriptor);
+    this.steps.splice(secondIndex, 1, firstStepDescriptor);
+  }
+
+  /**
    * @param {StepDescriptor} stepDescriptor
    * @return {Number}
    * */

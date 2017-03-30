@@ -21,11 +21,11 @@
   ],
   "bugs": {
     "email": "pyatyispyatil@gmail.com",
-    "url": "https://github.com/Gloooom/sequence-stepper/issues"
+    "url": "https://github.com/gloooom/sequence-stepper/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Gloooom/sequence-stepper/"
+    "url": "https://github.com/gloooom/sequence-stepper/"
   },
   "ava": {
     "require": "babel-register",
