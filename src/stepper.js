@@ -23,6 +23,8 @@ class StepDescriptor {
    * */
   next = (data) => this.stepper.next(data, this);
 
+  prev = (data = 1) => this.stepper.prev(data, this);
+
   remove = () => this.stepper.remove(this);
 
   /**
@@ -78,9 +80,11 @@ export class Stepper {
 
   /**
    * @param {Number} stepsCount - distance to step back
+   * @param {StepDescriptor} stepDescriptor
+   * @return {StepDescriptor}
    * */
-  prev(stepsCount = 1) {
-    this.currentStep -= stepsCount;
+  prev(stepsCount = 1, stepDescriptor) {
+    return this.steps[this.getIndex(stepDescriptor) - stepsCount];
   }
 
   /**
@@ -114,6 +118,18 @@ export class Stepper {
     }
 
     return stepDescriptor;
+  }
+
+  /**
+   * @param {StepDescriptor} firstStepDescriptor
+   * @param {StepDescriptor} secondStepDescriptor
+   * */
+  swap(firstStepDescriptor, secondStepDescriptor) {
+    const firstIndex = this.getIndex(firstStepDescriptor);
+    const secondIndex = this.getIndex(secondStepDescriptor);
+
+    this.steps.splice(firstIndex, 1, secondStepDescriptor);
+    this.steps.splice(secondIndex, 1, firstStepDescriptor);
   }
 
   /**
