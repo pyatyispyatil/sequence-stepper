@@ -65,6 +65,11 @@ var _initialiseProps = function _initialiseProps() {
     return _this3.stepper.next(data, _this3);
   };
 
+  this.prev = function () {
+    var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+    return _this3.stepper.prev(data, _this3);
+  };
+
   this.remove = function () {
     return _this3.stepper.remove(_this3);
   };
@@ -132,14 +137,17 @@ var Stepper = exports.Stepper = function () {
 
     /**
      * @param {Number} stepsCount - distance to step back
+     * @param {StepDescriptor} stepDescriptor
+     * @return {StepDescriptor}
      * */
 
   }, {
     key: 'prev',
     value: function prev() {
       var stepsCount = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+      var stepDescriptor = arguments[1];
 
-      this.currentStep -= stepsCount;
+      return this.steps[this.getIndex(stepDescriptor) - stepsCount];
     }
 
     /**
@@ -184,6 +192,21 @@ var Stepper = exports.Stepper = function () {
       }
 
       return stepDescriptor;
+    }
+
+    /**
+     * @param {StepDescriptor} firstStepDescriptor
+     * @param {StepDescriptor} secondStepDescriptor
+     * */
+
+  }, {
+    key: 'swap',
+    value: function swap(firstStepDescriptor, secondStepDescriptor) {
+      var firstIndex = this.getIndex(firstStepDescriptor);
+      var secondIndex = this.getIndex(secondStepDescriptor);
+
+      this.steps.splice(firstIndex, 1, secondStepDescriptor);
+      this.steps.splice(secondIndex, 1, firstStepDescriptor);
     }
 
     /**
