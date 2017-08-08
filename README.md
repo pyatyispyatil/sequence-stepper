@@ -107,7 +107,7 @@ stepper.start();
 ```
 
 ### function sequence
-Its help you to make a function thats launches a queue to the end. You can make it with this simple functional conveyors.
+Its help you to make a function thats launches a queue till the end. You can make it with this simple functional conveyors.
 ```js
 import {sequence} from 'sequence-stepper';
 

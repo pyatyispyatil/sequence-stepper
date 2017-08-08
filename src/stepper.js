@@ -58,21 +58,21 @@ export class Stepper {
   steps = [];
   reject;
 
-  currentStep = -1;
+  currentStep = null;
 
   /**
    * @param {*} [data]
    * @param {StepDescriptor} [stepDescriptor]
    * */
   next(data = null, stepDescriptor = null) {
-    if (stepDescriptor) {
-      this.currentStep = this.getIndex(stepDescriptor);
-    }
+    const isInitialStep = this.currentStep === null && stepDescriptor === null;
+    const nextStepIndex = isInitialStep ? 0 : this.getIndex(stepDescriptor || this.currentStep) + 1;
 
-    if (this.currentStep++ < this.steps.length - 1) {
-      let isEnded = this.currentStep === this.steps.length - 1;
+    if (nextStepIndex < this.steps.length) {
+      const isEnded = nextStepIndex === this.steps.length - 1;
 
-      this.steps[this.currentStep].execute(data, isEnded);
+      this.currentStep = stepDescriptor ? stepDescriptor : this.steps[nextStepIndex];
+      this.steps[nextStepIndex].execute(data, isEnded);
     } else {
       throw new Error('Steps executing are ended. You cannot call "next" method.');
     }
@@ -83,8 +83,16 @@ export class Stepper {
    * @param {StepDescriptor} stepDescriptor
    * @return {StepDescriptor}
    * */
-  prev(stepsCount = 1, stepDescriptor) {
-    return this.steps[this.getIndex(stepDescriptor) - stepsCount];
+  prev(stepsCount = 1, stepDescriptor = null) {
+    const targetPos = this.getIndex(stepDescriptor || this.currentStep) - stepsCount;
+
+    if (targetPos >= 0) {
+      this.currentStep = this.steps[targetPos];
+
+      return this.currentStep;
+    } else {
+      throw new Error(`Cannot step back on pos ${targetPos}`);
+    }
   }
 
   /**
@@ -92,7 +100,7 @@ export class Stepper {
    * @param {*} data
    * */
   start(data) {
-    this.currentStep = -1;
+    this.currentStep = null;
     this.next(data);
   }
 
@@ -100,7 +108,13 @@ export class Stepper {
    * @param {StepDescriptor} stepDescriptor
    * */
   remove(stepDescriptor) {
-    this.steps.splice(this.getIndex(stepDescriptor), 1);
+    const removedStepIndex = this.getIndex(stepDescriptor);
+
+    if (this.currentStep !== null && stepDescriptor.id === this.currentStep.id) {
+      this.currentStep = this.steps[removedStepIndex - 1];
+    }
+
+    this.steps.splice(removedStepIndex, 1);
   }
 
   /**
@@ -137,7 +151,7 @@ export class Stepper {
    * @return {Number}
    * */
   getIndex(stepDescriptor) {
-    let index = this.steps.findIndex((step) => step.id === stepDescriptor.id);
+    const index = this.steps.findIndex((step) => stepDescriptor && step.id === stepDescriptor.id);
 
     if (index === -1) {
       throw new Error('Cannot find step in steps array');
@@ -187,13 +201,16 @@ export class Stepper {
  * @param {Function} [reject]
  * */
 export function sequence(steps, reject = () => null) {
-  let [last, ...firsts] = steps.slice().reverse();
-  let seq = firsts.reduce((nextStep, step, index) =>
-    (comingStep, data, done) =>
-      step({
-        next: (nextData) => nextStep(comingStep, nextData, index === 0),
-        reject
-      }, data, done), last);
+  const hasSteps = !(steps.length - 1);
+  const seq = steps.reduceRight((nextStep, step, index) => {
+    const next = index === steps.length - 2 ? (
+      (nextData) => nextStep({reject}, nextData, true)
+    ) : (
+      (nextData) => nextStep(nextData, false)
+    );
 
-  return (initialData) => seq({reject}, initialData, !firsts.length);
+    return (data, done) => step({next, reject}, data, done)
+  });
+
+  return (initialData) => seq(initialData, hasSteps);
 }
