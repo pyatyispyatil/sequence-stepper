@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var StepDescriptor =
@@ -100,7 +102,7 @@ var Stepper = exports.Stepper = function () {
     _classCallCheck(this, Stepper);
 
     this.steps = [];
-    this.currentStep = null;
+    this.currentStep = -1;
 
     steps.forEach(function (step) {
       return _this2.add(step);
@@ -120,14 +122,14 @@ var Stepper = exports.Stepper = function () {
       var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var stepDescriptor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
-      var isInitialStep = this.currentStep === null && stepDescriptor === null;
-      var nextStepIndex = isInitialStep ? 0 : this.getIndex(stepDescriptor || this.currentStep) + 1;
+      if (stepDescriptor) {
+        this.currentStep = this.getIndex(stepDescriptor);
+      }
 
-      if (nextStepIndex < this.steps.length) {
-        var isEnded = nextStepIndex === this.steps.length - 1;
+      if (this.currentStep++ < this.steps.length - 1) {
+        var isEnded = this.currentStep === this.steps.length - 1;
 
-        this.currentStep = stepDescriptor ? stepDescriptor : this.steps[nextStepIndex];
-        this.steps[nextStepIndex].execute(data, isEnded);
+        this.steps[this.currentStep].execute(data, isEnded);
       } else {
         throw new Error('Steps executing are ended. You cannot call "next" method.');
       }
@@ -143,17 +145,9 @@ var Stepper = exports.Stepper = function () {
     key: 'prev',
     value: function prev() {
       var stepsCount = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-      var stepDescriptor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var stepDescriptor = arguments[1];
 
-      var targetPos = this.getIndex(stepDescriptor || this.currentStep) - stepsCount;
-
-      if (targetPos >= 0) {
-        this.currentStep = this.steps[targetPos];
-
-        return this.currentStep;
-      } else {
-        throw new Error('Cannot step back on pos ' + targetPos);
-      }
+      return this.steps[this.getIndex(stepDescriptor) - stepsCount];
     }
 
     /**
@@ -164,7 +158,7 @@ var Stepper = exports.Stepper = function () {
   }, {
     key: 'start',
     value: function start(data) {
-      this.currentStep = null;
+      this.currentStep = -1;
       this.next(data);
     }
 
@@ -175,13 +169,7 @@ var Stepper = exports.Stepper = function () {
   }, {
     key: 'remove',
     value: function remove(stepDescriptor) {
-      var removedStepIndex = this.getIndex(stepDescriptor);
-
-      if (this.currentStep !== null && stepDescriptor.id === this.currentStep.id) {
-        this.currentStep = this.steps[removedStepIndex - 1];
-      }
-
-      this.steps.splice(removedStepIndex, 1);
+      this.steps.splice(this.getIndex(stepDescriptor), 1);
     }
 
     /**
@@ -230,7 +218,7 @@ var Stepper = exports.Stepper = function () {
     key: 'getIndex',
     value: function getIndex(stepDescriptor) {
       var index = this.steps.findIndex(function (step) {
-        return stepDescriptor && step.id === stepDescriptor.id;
+        return step.id === stepDescriptor.id;
       });
 
       if (index === -1) {
@@ -304,21 +292,24 @@ function _sequence(steps) {
     return null;
   };
 
-  var hasSteps = !(steps.length - 1);
-  var seq = steps.reduceRight(function (nextStep, step, index) {
-    var next = index === steps.length - 2 ? function (nextData) {
-      return nextStep({ reject: reject }, nextData, true);
-    } : function (nextData) {
-      return nextStep(nextData, false);
-    };
+  var _steps$slice$reverse = steps.slice().reverse(),
+      _steps$slice$reverse2 = _toArray(_steps$slice$reverse),
+      last = _steps$slice$reverse2[0],
+      firsts = _steps$slice$reverse2.slice(1);
 
-    return function (data, done) {
-      return step({ next: next, reject: reject }, data, done);
+  var seq = firsts.reduce(function (nextStep, step, index) {
+    return function (comingStep, data, done) {
+      return step({
+        next: function next(nextData) {
+          return nextStep(comingStep, nextData, index === 0);
+        },
+        reject: reject
+      }, data, done);
     };
-  });
+  }, last);
 
   return function (initialData) {
-    return seq(initialData, hasSteps);
+    return seq({ reject: reject }, initialData, !firsts.length);
   };
 }
 exports.sequence = _sequence;
